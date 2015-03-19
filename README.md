@@ -1,2 +1,3 @@
 # Whac-Some-Pixels
-A JS game based ont he classic Whac-A-Mole
+
+A JS game based on the classic Whac-A-Mole arcade game
