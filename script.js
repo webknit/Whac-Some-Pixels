@@ -1,13 +1,6 @@
 var WhacSomePixels = (function () {
 
-	function init() {
-
-		// Draw the canvas
-		canvas.draw(0, 0, 'white', 'black');
-
-		game.start();
-
-	}
+	var score = 0;
 
 	var canvas = canvas || {};
 
@@ -21,7 +14,7 @@ var WhacSomePixels = (function () {
 		fill: 'white',
 		stroke: 'black',
 		size: 1,
-		pixelSize: 100
+		pixelSize: 10
 	};
 
 	canvas.draw = function(x, y, fillColour, strokeColour, height, width) {
@@ -63,47 +56,86 @@ var WhacSomePixels = (function () {
 	var timer = timer || {};
 
 	timer.count = 10;
-	timer.speed = 1000;
+	timer.masterCount = 60;
+	timer.speed = 10;
 
 	timer.countDown = function() {
-
-		timer.count = 10;
-		clearInterval(counterTimer);
-
-		var counterTimer = setInterval(function() {
-
-				if (timer.count > 0) {
-
-					myTimer();
-
-				} 
-
-				else {
-
-					timer.count = 10;
-					clearInterval(counterTimer);
-
-				} 
-
-		}, timer.speed);
-
-		function myTimer() {
-
-		    timer.count = timer.count - 1;
-
-		    document.getElementById('countdown').innerHTML = timer.count;
-
-		}
+	
+		timer.count = timer.count - 1;
+		
+		if (timer.count < 1) {
+			
+			game.reset();
+        	
+        }
 
 	}
+	
+	timer.gameCount = function() {
+	
+		timer.masterCount = timer.masterCount - 1;
+
+		document.getElementById('countdown').innerHTML = timer.masterCount + " seconds";
+		
+		if (timer.masterCount < 1) {
+			
+			alert('Your score is ' + score);
+			
+			game.masterReset();
+        	
+        }
+
+	}
+
 
 	var game = game || {};
 
 	game.start = function() {
 
-		// Creates a random px
 		drawPixel();
+		
+		document.getElementById('score').innerHTML = "Your score is " + score;
+		
+		if(typeof game_loop != "undefined") {
+		
+			clearInterval(game_loop);
+			
+		}
+    	
+    	game_loop = setInterval(timer.countDown, timer.speed);
+    	
+    	game_count = setInterval(timer.gameCount, 1000);
 
+	}
+	
+	game.reset = function() {
+	
+		// Score
+		document.getElementById('score').innerHTML = "Your score is " + score;
+	
+		clearInterval(game_loop);
+    	
+    	timer.count = 10;
+    	
+    	console.log(timer.speed);
+    	
+    	game_loop = setInterval(timer.countDown, timer.speed);
+
+    	drawPixel();
+		
+	}
+	
+	game.masterReset = function() {
+	
+		clearInterval(game_loop);
+		clearInterval(game_count);
+		
+		timer.masterCount = 60;
+		timer.speed = 500;
+		score = 0;
+	
+		game.start();
+	
 	}
 
 	canvas.element.addEventListener('click', function(event) {
@@ -114,9 +146,16 @@ var WhacSomePixels = (function () {
         var y = event.pageY - canvas.elemTop;
 
         if (x >+ pixel.x && x <= pixel.x + canvas.values.pixelSize || y >= pixel.y && y <= pixel.y + canvas.values.pixelSize && timer.count > 0) {
-
-        	drawPixel();
-        	timer.countDown();
+        
+        	score += 1;
+        	
+        	if (timer.speed > 100) {
+        	
+        		timer.speed -= 10;
+        	
+        	}
+        
+        	game.reset();
 
         }
 
@@ -124,6 +163,6 @@ var WhacSomePixels = (function () {
 
 	}, false);
 
-	init();
+	game.start();
 
 })();
