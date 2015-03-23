@@ -5,8 +5,7 @@ var WhacSomePixels = (function () {
 		// Draw the canvas
 		canvas.draw(0, 0, 'white', 'black');
 
-		// Creates a random px
-		drawPixel();
+		game.start();
 
 	}
 
@@ -53,8 +52,57 @@ var WhacSomePixels = (function () {
 			y: Math.round(Math.random() * (canvas.height - canvas.values.size) / canvas.values.size)
 		};
 
+		// redraw the canvas
+		canvas.draw(0, 0, 'white', 'black');
+
 		// Draws the initial random pixel to the canvas
 		canvas.draw(pixel.x, pixel.y, 'red', 'white', canvas.values.pixelSize, canvas.values.pixelSize);
+
+	}
+
+	var timer = timer || {};
+
+	timer.count = 10;
+	timer.speed = 1000;
+
+	timer.countDown = function() {
+
+		timer.count = 10;
+		clearInterval(counterTimer);
+
+		var counterTimer = setInterval(function() {
+
+				if (timer.count > 0) {
+
+					myTimer();
+
+				} 
+
+				else {
+
+					timer.count = 10;
+					clearInterval(counterTimer);
+
+				} 
+
+		}, timer.speed);
+
+		function myTimer() {
+
+		    timer.count = timer.count - 1;
+
+		    document.getElementById('countdown').innerHTML = timer.count;
+
+		}
+
+	}
+
+	var game = game || {};
+
+	game.start = function() {
+
+		// Creates a random px
+		drawPixel();
 
 	}
 
@@ -65,9 +113,10 @@ var WhacSomePixels = (function () {
 		var x = event.pageX - canvas.elemLeft;
         var y = event.pageY - canvas.elemTop;
 
-        if (x >+ pixel.x && x <= pixel.x + canvas.values.pixelSize || y >= pixel.y && y <= pixel.y + canvas.values.pixelSize) {
+        if (x >+ pixel.x && x <= pixel.x + canvas.values.pixelSize || y >= pixel.y && y <= pixel.y + canvas.values.pixelSize && timer.count > 0) {
 
         	drawPixel();
+        	timer.countDown();
 
         }
 
