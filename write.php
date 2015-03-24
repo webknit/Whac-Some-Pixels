@@ -8,8 +8,6 @@
 		
 		$fileContents = file_get_contents("leaders.txt");
 		$fileContents = (int) preg_replace('/\D/', '', $fileContents);
-		
-		file_put_contents("leaders.txt", $var1);
 
 		
 		if ($var1 > $fileContents) {

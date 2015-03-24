@@ -80,7 +80,9 @@ var WhacSomePixels = (function () {
 			
 			alert('Your score is ' + score);
 			
-			submitInfo(score);
+			var ajaxScore = score;
+			
+			submitInfo(ajaxScore);
 			
 			game.masterReset();
         	
