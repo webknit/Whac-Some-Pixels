@@ -11,8 +11,6 @@ var WhacSomePixels = (function () {
 	canvas.elemLeft = canvas.element.offsetLeft,
     canvas.elemTop = canvas.element.offsetTop,
 	canvas.values = {
-		fill: 'white',
-		stroke: 'black',
 		size: 1,
 		pixelSize: 10
 	};
@@ -41,15 +39,16 @@ var WhacSomePixels = (function () {
 	function drawPixel() {
 
 		pixel = {
-			x: Math.round(Math.random() * (canvas.width - canvas.values.size) / canvas.values.size),
-			y: Math.round(Math.random() * (canvas.height - canvas.values.size) / canvas.values.size)
+			x: Math.round(Math.random() * (canvas.width - canvas.values.pixelSize) / canvas.values.size),
+			y: Math.round(Math.random() * (canvas.height - canvas.values.pixelSize) / canvas.values.size)
 		};
-
+		
 		// redraw the canvas
 		canvas.draw(0, 0, 'white', 'black');
 
 		// Draws the initial random pixel to the canvas
-		canvas.draw(pixel.x, pixel.y, 'red', 'white', canvas.values.pixelSize, canvas.values.pixelSize);
+		canvas.draw(pixel.x, pixel.y, 'green', 'white', canvas.values.pixelSize, canvas.values.pixelSize);
+		
 
 	}
 
@@ -57,7 +56,7 @@ var WhacSomePixels = (function () {
 
 	timer.count = 10;
 	timer.masterCount = 60;
-	timer.speed = 10;
+	timer.speed = 500;
 
 	timer.countDown = function() {
 	
@@ -81,6 +80,8 @@ var WhacSomePixels = (function () {
 			
 			alert('Your score is ' + score);
 			
+			submitInfo(score);
+			
 			game.masterReset();
         	
         }
@@ -91,6 +92,8 @@ var WhacSomePixels = (function () {
 	var game = game || {};
 
 	game.start = function() {
+	
+		getHighScore();
 
 		drawPixel();
 		
@@ -117,8 +120,6 @@ var WhacSomePixels = (function () {
     	
     	timer.count = 10;
     	
-    	console.log(timer.speed);
-    	
     	game_loop = setInterval(timer.countDown, timer.speed);
 
     	drawPixel();
@@ -140,12 +141,10 @@ var WhacSomePixels = (function () {
 
 	canvas.element.addEventListener('click', function(event) {
 
-		console.log(pixel.x, pixel.y);
-
 		var x = event.pageX - canvas.elemLeft;
         var y = event.pageY - canvas.elemTop;
 
-        if (x >+ pixel.x && x <= pixel.x + canvas.values.pixelSize || y >= pixel.y && y <= pixel.y + canvas.values.pixelSize && timer.count > 0) {
+        if (x >= pixel.x && x <= pixel.x + canvas.values.pixelSize && y >= pixel.y && y <= pixel.y + canvas.values.pixelSize && timer.count > 0) {
         
         	score += 1;
         	
@@ -159,10 +158,63 @@ var WhacSomePixels = (function () {
 
         }
 
-        console.log(x, y);
-
 	}, false);
+	
+	function submitInfo(playerScore) {
+	
+		
+		// this works no problem
+		$.ajax({
+			type: "POST",
+			url: "write.php",
+			// Passign data in object, works in jQuery
+			data: {Info:playerScore, Name:PHPplayer},
+			success: function(result) {
+				getHighScore();
+			}
+		});
+	
+		/*
+		// NOT WORKING
+		var request = new XMLHttpRequest();
+		request.open('POST', 'write.php', true);
+		request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		// Think my error is how this data is being passed? Different syntax to jQuery?
+		request.send({Info:playerScore, Name:PHPplayer});
+		*/	
+			
+	}
 
-	game.start();
+	function getHighScore() {
+	
+		var request = new XMLHttpRequest();
+		request.open('GET', 'leaders.txt', true);
+		
+		request.onload = function() {
+		
+		  if (request.status >= 200 && request.status < 400) {
+		  
+		    var data = request.responseText;
+		    document.getElementById('highscore').innerHTML = 'Highest score: ' + data;
+		    
+		  }
+		  
+		};
+		
+		request.send();
+		
+	}
+	
+	person = prompt('Please enter your name, the game will start after you click enter');
+	
+	if (person != null && person != '') {
+	
+		document.getElementById('player').innerHTML = person;
+		
+		var PHPplayer = "-" + person;
+
+		game.start();
+		
+	}
 
 })();
